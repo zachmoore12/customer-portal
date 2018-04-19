@@ -1,0 +1,37 @@
+version: '3'
+services:
+  db:
+    container_name: customer-portal-io-db
+    image: mysql:5.6.38
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: dockerApp
+      MYSQL_USER: dockerApp
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+    volumes:
+      - ./db/:/var/lib/mysql
+    restart: always
+  node:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+    links:
+      - db:db
+    expose:
+      - 3000
+    depends_on:
+      - db
+networks:
+  app-network:
+    driver: bridge
